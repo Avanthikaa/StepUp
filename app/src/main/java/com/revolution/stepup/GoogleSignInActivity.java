@@ -77,7 +77,7 @@ public class GoogleSignInActivity extends AppCompatActivity implements GoogleApi
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);//heu
-            setContentView(layout.activity_google);
+            setContentView(R.layout.activity_google);
 
             // Views
             mStatusTextView = (TextView) findViewById(R.id.status);
@@ -119,6 +119,8 @@ public class GoogleSignInActivity extends AppCompatActivity implements GoogleApi
                             @Override
                             public void onResponse(String response) {
                                 Toast.makeText(getApplicationContext(),response,Toast.LENGTH_LONG).show();
+                                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                startActivity(intent);
                             }
                         }, new Response.ErrorListener() {
                             @Override

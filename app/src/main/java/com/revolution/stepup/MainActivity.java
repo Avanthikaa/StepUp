@@ -32,8 +32,6 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(this, GoogleSignInActivity.class);
             startActivity(intent);
         }
-        //Yay
-
        /* TextView textView = (TextView) findViewById(R.id.fuid);
         textView.setText(FirebaseAuth.getInstance().getCurrentUser().getUid());*/
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -95,7 +93,8 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_camera) {
             // Handle the camera action
-
+            NewsFeedFragment newsFeedFragment = new NewsFeedFragment();
+            getSupportFragmentManager().beginTransaction().replace(R.id.content_main, newsFeedFragment).commit();
         } else if (id == R.id.nav_gallery) {
 
         } else if (id == R.id.nav_slideshow) {
