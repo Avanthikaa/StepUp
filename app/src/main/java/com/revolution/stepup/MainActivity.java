@@ -97,6 +97,8 @@ public class MainActivity extends AppCompatActivity
             // Handle the camera action
 
         } else if (id == R.id.nav_gallery) {
+            BuddyFragment buddyFragment=new BuddyFragment();
+            getSupportFragmentManager().beginTransaction().replace(R.id.content_main,buddyFragment).commit();
 
         } else if (id == R.id.nav_slideshow) {
 
