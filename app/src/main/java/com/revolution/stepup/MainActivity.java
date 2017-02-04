@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(this, GoogleSignInActivity.class);
             startActivity(intent);
         }
+        //Yay
 
        /* TextView textView = (TextView) findViewById(R.id.fuid);
         textView.setText(FirebaseAuth.getInstance().getCurrentUser().getUid());*/
