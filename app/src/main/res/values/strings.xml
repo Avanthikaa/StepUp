@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">UserFeeds</string>
+    <string name="app_name">StepUp</string>
 
 
     <string name="label_google_sign_in">Firebase + Google Sign In</string>

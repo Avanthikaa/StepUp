@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "547941634106",
+    "firebase_url": "https://stepup-671e3.firebaseio.com",
+    "project_id": "stepup-671e3",
+    "storage_bucket": "stepup-671e3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:547941634106:android:5f4dd2a8b0619360",
+        "android_client_info": {
+          "package_name": "com.revolution.stepup"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "547941634106-nq7rb24evul238lun4fapfjnulom9h5l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_DdaSqjrkRzhpd8R7gVibkZtRfG9lwDM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "547941634106-nq7rb24evul238lun4fapfjnulom9h5l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
