@@ -76,7 +76,7 @@ public class GoogleSignInActivity extends AppCompatActivity implements GoogleApi
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
+            super.onCreate(savedInstanceState);//heu
             setContentView(layout.activity_google);
 
             // Views
