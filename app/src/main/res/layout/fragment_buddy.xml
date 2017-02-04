@@ -1,14 +1,21 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.revolution.stepup.BuddyFragment">
 
     <!-- TODO: Update blank fragment layout -->
+   <android.support.v7.widget.SearchView
+       android:layout_width="match_parent"
+       android:layout_height="25dp"
+       android:text="Search for your friends"
+       android:id="@+id/searchName">
+   </android.support.v7.widget.SearchView>
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_below="@id/searchName">
 
     </android.support.v7.widget.RecyclerView>
-</FrameLayout>
+</RelativeLayout>

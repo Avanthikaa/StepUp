@@ -8,11 +8,12 @@ public class Buddy {
     String username;
     String imageUrl;
     Boolean followStatus;
-    String email;
+    String uid;
     public Buddy(){
 
     }
-    public Buddy(String uname, String imgUrl ,Boolean fStatus){
+    public Buddy(String uid, String uname, String imgUrl ,Boolean fStatus){
+        this.uid = uid;
         this.username=uname;
         this.imageUrl=imgUrl;
         this.followStatus=fStatus;

@@ -2,16 +2,19 @@ package com.revolution.stepup;
 
 import android.content.Context;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -21,6 +24,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.firebase.auth.FirebaseAuth;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -44,6 +48,7 @@ public class BuddyFragment extends Fragment {
     RecyclerView.LayoutManager layoutManager;
     ArrayList<Buddy> data = null;
     BuddyAdapter buddyAdapter;
+    SearchView searchName = null;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -93,12 +98,25 @@ public class BuddyFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_buddy, container, false);
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerView);
+        searchName = (SearchView) rootView.findViewById(R.id.searchName);
+        searchName.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Toast.makeText(getContext(), query, Toast.LENGTH_SHORT).show();
+                loadData(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
         layoutManager = new LinearLayoutManager(rootView.getContext());
         recyclerView.setLayoutManager(layoutManager);
         data = new ArrayList<Buddy>();
-        buddyAdapter = new BuddyAdapter(rootView.getContext(),data);
+        buddyAdapter = new BuddyAdapter(rootView.getContext(), data);
         recyclerView.setAdapter(buddyAdapter);
-        loadData();
         return rootView;
     }
 
@@ -108,60 +126,54 @@ public class BuddyFragment extends Fragment {
             mListener.onFragmentInteraction(uri);
         }
     }
+
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
 
-    void loadData(){
-        data.add(new Buddy("Varun","img",true));
-        data.add(new Buddy("Nethra","newurl",true));
-        data.add(new Buddy("Ashwini","newurl",false));
-        data.add(new Buddy("Avan","newurl",false));
-        /*RequestQueue queue = Volley.newRequestQueue(getContext());
-        StringRequest sr = new StringRequest(Request.Method.GET,"http://codeforces.com/api/user.status?handle=Vrock", new Response.Listener<String>() {
-
+    void loadData(final String query) {
+        /*
+        data.add(new Buddy("Varun", "img", true));
+        data.add(new Buddy("Nethra", "newurl", true));
+        data.add(new Buddy("Ashwini", "newurl", false));
+        data.add(new Buddy("Avan", "newurl", false));*/
+        RequestQueue queue = Volley.newRequestQueue(getContext());
+        StringRequest sr = new StringRequest(Request.Method.POST, GoogleSignInActivity.SERVER_URL + "/search", new Response.Listener<String>() {
+            @Override
             public void onResponse(String response) {
-                //Toast.makeText(getContext(),response,Toast.LENGTH_LONG).show();
-                data.clear();
                 try {
+                    data.clear();
                     JSONObject jsonObject = new JSONObject(response);
-                    JSONArray jsonArray = jsonObject.getJSONArray("result");
-                    for(int i=0;i<jsonArray.length();i++){
+                    JSONArray jsonArray = jsonObject.getJSONArray("users");
+                    for (int i = 0; i < jsonArray.length(); i++) {
                         JSONObject jsonObject1 = jsonArray.getJSONObject(i);
                         //JSONObject jsonObject2 = jsonObject1.getJSONObject("problem");
-                       // Buddy post = new Buddy(jsonObject2.getString("name"),jsonObject2.getString("type"));
+                        Buddy post = new Buddy(jsonObject1.getString("uid"),jsonObject1.getString("name"), jsonObject1.getString("profile_image_url"), jsonObject1.getBoolean("follows"));
                         data.add(post);
                     }
-                    Toast.makeText(getContext(),"Done",Toast.LENGTH_LONG).show();
-
-                    //postAdapter.notifyDataSetChanged();
+                    Toast.makeText(getContext(), "Done", Toast.LENGTH_LONG).show();
+                    buddyAdapter.notifyDataSetChanged();
                 }catch (Exception ex){
-                    Toast.makeText(getContext(),ex.toString(),Toast.LENGTH_LONG).show();
+                    Log.e("BuddyFragment",ex.toString());
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e("Volley Error!",error.toString());
+                Log.e("Volley Error!", error.toString());
             }
-        }){
-            /*
+        }) {
+
             @Override
-            protected Map<String,String> getParams(){
-                Map<String,String> params = new HashMap<String, String>();
-                SharedPreferences sharedPreferences = context.getSharedPreferences("user_data",Context.MODE_PRIVATE);
-                params.put("from_user", sharedPreferences.getString("user_name",""));
-                return params;
-            }*/
-            /*
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String,String> params = new HashMap<String, String>();
-                params.put("Content-Type","application/json");
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("query", query);
+                params.put("uid", FirebaseAuth.getInstance().getCurrentUser().getUid());
                 return params;
             }
-        };*/
-        //queue.add(sr);
+        };
+        queue.add(sr);
     }
+
 }

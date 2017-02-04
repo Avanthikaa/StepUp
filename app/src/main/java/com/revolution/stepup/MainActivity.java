@@ -38,8 +38,10 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                /*Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();*/
+                UploadDataFragment uploadDataFragment = new UploadDataFragment();
+                getSupportFragmentManager().beginTransaction().replace(R.id.content_main, uploadDataFragment).commit();
             }
         });
         //Hello
@@ -100,7 +102,8 @@ public class MainActivity extends AppCompatActivity
             getSupportFragmentManager().beginTransaction().replace(R.id.content_main,buddyFragment).commit();
 
         } else if (id == R.id.nav_slideshow) {
-
+            CreateEventFragment createEventFragment = new CreateEventFragment();
+            getSupportFragmentManager().beginTransaction().replace(R.id.content_main, createEventFragment).commit();
         } else if (id == R.id.nav_manage) {
 
         } else if (id == R.id.nav_share) {

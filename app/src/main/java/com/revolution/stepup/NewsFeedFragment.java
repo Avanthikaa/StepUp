@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,8 +25,12 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.firebase.auth.FirebaseAuth;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,6 +56,14 @@ public class NewsFeedFragment extends Fragment {
 
     public EditText postText;
     public Button postButton;
+
+    private RecyclerView recyclerView;
+    private RecyclerView.LayoutManager layoutManager;
+    private NewsFeedAdapter newsFeedAdapter;
+
+    private SwipeRefreshLayout feedRefresh;
+
+    private ArrayList<Post> data;
 
     private OnFragmentInteractionListener mListener;
 
@@ -94,40 +109,40 @@ public class NewsFeedFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 final String text = postText.getEditableText().toString();
-                if(text==null){
+                if (text == null) {
                     Toast.makeText(getContext(), "Please enter something!", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if(text.equals("")){
+                if (text.equals("")) {
                     Toast.makeText(getContext(), "Please enter something!", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if(text.length()>500){
+                if (text.length() > 500) {
                     Toast.makeText(getContext(), "Post should not be more than 500 characters!", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 RequestQueue queue = Volley.newRequestQueue(getContext());
-                StringRequest sr = new StringRequest(Request.Method.POST,GoogleSignInActivity.SERVER_URL+"/createPost", new Response.Listener<String>() {
+                StringRequest sr = new StringRequest(Request.Method.POST, GoogleSignInActivity.SERVER_URL + "/createPost", new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Toast.makeText(getContext(),response,Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(), response, Toast.LENGTH_LONG).show();
                     }
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.e("Volley Error!",error.toString());
+                        Log.e("Volley Error!", error.toString());
                     }
-                }){
+                }) {
 
                     @Override
-                    protected Map<String,String> getParams(){
-                        Map<String,String> params = new HashMap<String, String>();
+                    protected Map<String, String> getParams() {
+                        Map<String, String> params = new HashMap<String, String>();
                         params.put("uid", FirebaseAuth.getInstance().getCurrentUser().getUid().toString());
                         java.util.Date date = Calendar.getInstance().getTime();
-                        params.put("date", DateFormat.format("yyyy-MM-dd HH:mm:ss",date).toString());
+                        params.put("date", DateFormat.format("yyyy-MM-dd HH:mm:ss", date).toString());
                         params.put("content", text);
                         params.put("image_url", "null");
-                        params.put("type","1");
+                        params.put("type", "1");
                         return params;
                     }
                 };
@@ -135,6 +150,21 @@ public class NewsFeedFragment extends Fragment {
                 postText.setText("");
             }
         });
+        feedRefresh = (SwipeRefreshLayout) rootView.findViewById(R.id.feedSwipeRefresh);
+        feedRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadData();
+                feedRefresh.setRefreshing(false);
+            }
+        });
+        recyclerView = (RecyclerView) rootView.findViewById(R.id.feedRecyclerView);
+        layoutManager = new LinearLayoutManager(getContext());
+        data = new ArrayList<Post>();
+        loadData();
+        newsFeedAdapter = new NewsFeedAdapter(getContext(), data);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(newsFeedAdapter);
         return rootView;
     }
 
@@ -144,6 +174,64 @@ public class NewsFeedFragment extends Fragment {
             mListener.onFragmentInteraction(uri);
         }
     }
+
+    public void loadData() {
+        RequestQueue queue = Volley.newRequestQueue(getContext());
+        StringRequest sr = new StringRequest(Request.Method.POST, GoogleSignInActivity.SERVER_URL + "/getNewsFeed", new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    data.clear();
+                    Log.v("NewsFeed",response);
+                    try {
+                        JSONObject jsonObject = new JSONObject(response);
+                        JSONArray jsonArray = jsonObject.getJSONArray("posts");
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject jsonObject1 = jsonArray.getJSONObject(i);
+                            int t = Integer.parseInt(jsonObject1.getString("type"));
+                            switch (t) {
+                                case 1:
+                                    data.add(new Post(jsonObject1.getString("pid"), jsonObject1.getString("name"), jsonObject1.getString("uid"), jsonObject1.getString("date"), jsonObject1.getString("profile_image_url"), jsonObject1.getString("content")));
+                                    break;
+                                case 2:
+                                    data.add(new Post(jsonObject1.getString("pid"), jsonObject1.getString("name"), jsonObject1.getString("uid"), jsonObject1.getString("date"), jsonObject1.getString("profile_image_url"), "", jsonObject1.getString("image_url")));
+                                    break;
+                                case 3:
+                                    data.add(new Post(jsonObject1.getString("pid"), jsonObject1.getString("name"), jsonObject1.getString("uid"), jsonObject1.getString("date"), jsonObject1.getString("profile_image_url"), jsonObject1.getString("content"), jsonObject1.getString("image_url")));
+                                    break;
+                                case 4:
+                                    JSONObject jsonObject2 = new JSONObject(jsonObject1.getString("content"));
+                                    data.add(new Post(jsonObject1.getString("pid"), jsonObject1.getString("name"), jsonObject1.getString("uid"), jsonObject1.getString("date"), jsonObject1.getString("profile_image_url"), jsonObject2.getString("description"), jsonObject1.getString("image_url"),jsonObject2.getString("event_date"),jsonObject2.getString("event_name"),jsonObject2.getString("venue"),jsonObject2.getBoolean("is_attending"),jsonObject2.getString("eid")));
+                                    break;
+                            }
+                        }
+                        newsFeedAdapter.notifyDataSetChanged();
+
+                    } catch (Exception ex) {
+                        Log.v("NewsFeedFragment", ex.toString());
+                    }
+                    //Toast.makeText(getContext(), response, Toast.LENGTH_LONG).show();
+                } catch (Exception ex) {
+                    Log.e("BuddyFragment", ex.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("Volley Error!", error.toString());
+            }
+        }) {
+
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("uid", FirebaseAuth.getInstance().getCurrentUser().getUid());
+                return params;
+            }
+        };
+        queue.add(sr);
+    }
+
 
     /**
      * This interface must be implemented by activities that contain this
