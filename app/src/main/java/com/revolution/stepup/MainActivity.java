@@ -1,9 +1,14 @@
 package com.revolution.stepup;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
+import android.text.InputType;
+import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -13,10 +18,28 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
+
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.microedition.khronos.opengles.GL;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -28,7 +51,7 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        if(FirebaseAuth.getInstance().getCurrentUser()==null){
+        if(FirebaseAuth.getInstance().getCurrentUser()==null) {
             Intent intent = new Intent(this, GoogleSignInActivity.class);
             startActivity(intent);
         }
@@ -52,7 +75,17 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        View headerView = navigationView.getHeaderView(0);
+        TextView textView = (TextView) headerView.findViewById(R.id.mainUserName);
+        textView.setText(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
+        TextView textView1 = (TextView) headerView.findViewById(R.id.mainUserEmail);
+        textView1.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+        CircleImageView imageView = (CircleImageView) headerView.findViewById(R.id.imageView);
+        Glide.with(getApplicationContext()).load(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).into(imageView);
         navigationView.setNavigationItemSelectedListener(this);
+
+        NewsFeedFragment newsFeedFragment = new NewsFeedFragment();
+        getSupportFragmentManager().beginTransaction().replace(R.id.content_main, newsFeedFragment).commit();
     }
 
     @Override
@@ -73,7 +106,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
@@ -81,6 +114,35 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Enter a Message");
+            final EditText input = new EditText(this);
+            input.setInputType(InputType.TYPE_CLASS_PHONE);
+            builder.setView(input);
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    //Post tp persons profile here
+                    if(input.getText().toString().equals("")){
+                        Snackbar.make(MainActivity.this.getCurrentFocus(), "Please enter a phone number", Snackbar.LENGTH_LONG)
+                                .setAction("Action", null).show();
+                        return;
+                    }else if(input.getText().toString().length()!=10){
+                        Snackbar.make(MainActivity.this.getCurrentFocus(), "Please enter a valid phone number", Snackbar.LENGTH_LONG)
+                                .setAction("Action", null).show();
+                    }else{
+                        //Send phone number
+                    }
+                }
+            });
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+
+            builder.show();
             return true;
         }
 
@@ -105,9 +167,11 @@ public class MainActivity extends AppCompatActivity
             CreateEventFragment createEventFragment = new CreateEventFragment();
             getSupportFragmentManager().beginTransaction().replace(R.id.content_main, createEventFragment).commit();
         } else if (id == R.id.nav_manage) {
-
+            MyEventsFragment myEventsFragment = new MyEventsFragment();
+            getSupportFragmentManager().beginTransaction().replace(R.id.content_main, myEventsFragment).commit();
         } else if (id == R.id.nav_share) {
-
+            ProfileFragment profileFragment = new ProfileFragment();
+            getSupportFragmentManager().beginTransaction().replace(R.id.content_main, profileFragment).commit();
         } else if (id == R.id.nav_send) {
             FirebaseAuth.getInstance().signOut();
             Intent intent = new Intent(this, GoogleSignInActivity.class);

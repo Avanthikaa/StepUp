@@ -7,7 +7,7 @@
     <!-- TODO: Update blank fragment layout -->
    <android.support.v7.widget.SearchView
        android:layout_width="match_parent"
-       android:layout_height="25dp"
+       android:layout_height="50dp"
        android:text="Search for your friends"
        android:id="@+id/searchName">
    </android.support.v7.widget.SearchView>

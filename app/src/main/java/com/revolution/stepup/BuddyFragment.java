@@ -99,10 +99,15 @@ public class BuddyFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_buddy, container, false);
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerView);
         searchName = (SearchView) rootView.findViewById(R.id.searchName);
+        searchName.setQueryHint("Search for someone");
+        searchName.setQuery("", true);
+        searchName.setFocusable(true);
+        searchName.setIconified(false);
+        searchName.requestFocusFromTouch();
         searchName.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                Toast.makeText(getContext(), query, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getContext(), query, Toast.LENGTH_SHORT).show();
                 loadData(query);
                 return true;
             }
@@ -152,7 +157,7 @@ public class BuddyFragment extends Fragment {
                         Buddy post = new Buddy(jsonObject1.getString("uid"),jsonObject1.getString("name"), jsonObject1.getString("profile_image_url"), jsonObject1.getBoolean("follows"));
                         data.add(post);
                     }
-                    Toast.makeText(getContext(), "Done", Toast.LENGTH_LONG).show();
+                    //Toast.makeText(getContext(), "Done", Toast.LENGTH_LONG).show();
                     buddyAdapter.notifyDataSetChanged();
                 }catch (Exception ex){
                     Log.e("BuddyFragment",ex.toString());

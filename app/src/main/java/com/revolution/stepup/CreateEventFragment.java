@@ -189,7 +189,6 @@ public class CreateEventFragment extends Fragment {
             super.onPostExecute(s);
             progressBar.setVisibility(View.INVISIBLE);
             //Upload to Server
-            Toast.makeText(getContext(), "Post Execute", Toast.LENGTH_SHORT).show();
             final String imageURL = s;
             //Toast.makeText(getContext(), "Data to upload "+eventName+" "+eventDescription+" "+eventAddress+" "+s+" "+eventDateTextInputLayout.getText().toString(), Toast.LENGTH_SHORT).show();
             RequestQueue queue = Volley.newRequestQueue(getContext());
@@ -201,7 +200,7 @@ public class CreateEventFragment extends Fragment {
                     FragmentManager fragmentManager = getFragmentManager();
                     InspireFragment inspireFragment = new InspireFragment();
                     fragmentManager.beginTransaction().replace(R.id.content_main, inspireFragment).commit();*/
-                    Toast.makeText(getContext(), response, Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getContext(), response, Toast.LENGTH_SHORT).show();
                     NewsFeedFragment newsFeedFragment = new NewsFeedFragment();
                     getFragmentManager().beginTransaction().replace(R.id.content_main, newsFeedFragment).commit();
                 }

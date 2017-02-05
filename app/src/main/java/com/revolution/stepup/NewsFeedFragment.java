@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -110,22 +111,26 @@ public class NewsFeedFragment extends Fragment {
             public void onClick(View v) {
                 final String text = postText.getEditableText().toString();
                 if (text == null) {
-                    Toast.makeText(getContext(), "Please enter something!", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(v, "Please enter text to post", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
                     return;
                 }
                 if (text.equals("")) {
-                    Toast.makeText(getContext(), "Please enter something!", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(v, "Please enter text to post", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
                     return;
                 }
                 if (text.length() > 500) {
-                    Toast.makeText(getContext(), "Post should not be more than 500 characters!", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(v, "Please keep the size to 500 characters", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
                     return;
                 }
+                final View view = v;
                 RequestQueue queue = Volley.newRequestQueue(getContext());
                 StringRequest sr = new StringRequest(Request.Method.POST, GoogleSignInActivity.SERVER_URL + "/createPost", new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Toast.makeText(getContext(), response, Toast.LENGTH_LONG).show();
+                        postText.setText("");
                     }
                 }, new Response.ErrorListener() {
                     @Override

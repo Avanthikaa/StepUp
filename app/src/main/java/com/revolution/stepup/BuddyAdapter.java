@@ -79,7 +79,7 @@ public class BuddyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     StringRequest sr = new StringRequest(Request.Method.POST, GoogleSignInActivity.SERVER_URL + "/unfollow", new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
-                            Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
                             fb.setText("Follow");
                             mDataSet.get(position).followStatus = false;
                             notifyDataSetChanged();
@@ -111,7 +111,7 @@ public class BuddyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     StringRequest sr = new StringRequest(Request.Method.POST, GoogleSignInActivity.SERVER_URL + "/follow", new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
-                            Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
                             fb.setText("Unfollow");
                             mDataSet.get(position).followStatus = true;
                             notifyDataSetChanged();

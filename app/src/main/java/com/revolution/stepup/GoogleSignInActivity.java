@@ -113,12 +113,10 @@ public class GoogleSignInActivity extends AppCompatActivity implements GoogleApi
                 if (user != null) {
                     // User is signed in
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                    Toast.makeText(GoogleSignInActivity.this, "You Are Signed In!!!", Toast.LENGTH_SHORT).show();
                     RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
                     StringRequest sr = new StringRequest(Request.Method.POST,SERVER_URL+"/login", new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
-                            Toast.makeText(getApplicationContext(),response,Toast.LENGTH_LONG).show();
                             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                             startActivity(intent);
                         }
@@ -213,8 +211,6 @@ public class GoogleSignInActivity extends AppCompatActivity implements GoogleApi
                         // signed in user can be handled in the listener.
                         if (!task.isSuccessful()) {
                             Log.w(TAG, "signInWithCredential", task.getException());
-                            Toast.makeText(GoogleSignInActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
                         }
                         // [START_EXCLUDE]
                         //hideProgressDialog();
@@ -281,7 +277,6 @@ public class GoogleSignInActivity extends AppCompatActivity implements GoogleApi
         // An unresolvable error has occurred and Google APIs (including Sign-In) will not
         // be available.
         Log.d(TAG, "onConnectionFailed:" + connectionResult);
-        Toast.makeText(this, "Google Play Services error.", Toast.LENGTH_SHORT).show();
     }
 
     @Override
