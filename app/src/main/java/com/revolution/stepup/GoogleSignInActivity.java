@@ -130,6 +130,7 @@ public class GoogleSignInActivity extends AppCompatActivity implements GoogleApi
                         @Override
                         protected Map<String,String> getParams(){
                             Map<String,String> params = new HashMap<String, String>();
+                            Log.v("pm",FirebaseAuth.getInstance().getCurrentUser().getUid().toString()+" "+FirebaseAuth.getInstance().getCurrentUser().getUid().toString()+" "+FirebaseAuth.getInstance().getCurrentUser().getEmail()+" "+FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl().toString());
                             params.put("uid", FirebaseAuth.getInstance().getCurrentUser().getUid().toString());
                             params.put("name", FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
                             params.put("email", FirebaseAuth.getInstance().getCurrentUser().getEmail());

@@ -61,8 +61,6 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();*/
                 UploadDataFragment uploadDataFragment = new UploadDataFragment();
                 getSupportFragmentManager().beginTransaction().replace(R.id.content_main, uploadDataFragment).commit();
             }
@@ -76,12 +74,16 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         View headerView = navigationView.getHeaderView(0);
-        TextView textView = (TextView) headerView.findViewById(R.id.mainUserName);
-        textView.setText(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
-        TextView textView1 = (TextView) headerView.findViewById(R.id.mainUserEmail);
-        textView1.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
-        CircleImageView imageView = (CircleImageView) headerView.findViewById(R.id.imageView);
-        Glide.with(getApplicationContext()).load(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).into(imageView);
+        try {
+            TextView textView = (TextView) headerView.findViewById(R.id.mainUserName);
+            textView.setText(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
+            TextView textView1 = (TextView) headerView.findViewById(R.id.mainUserEmail);
+            textView1.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+            CircleImageView imageView = (CircleImageView) headerView.findViewById(R.id.imageView);
+            Glide.with(getApplicationContext()).load(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl()).into(imageView);
+        }catch (Exception ex){
+            Log.e("MainActivity",ex.toString());
+        }
         navigationView.setNavigationItemSelectedListener(this);
 
         NewsFeedFragment newsFeedFragment = new NewsFeedFragment();
@@ -127,11 +129,32 @@ public class MainActivity extends AppCompatActivity
                         Snackbar.make(MainActivity.this.getCurrentFocus(), "Please enter a phone number", Snackbar.LENGTH_LONG)
                                 .setAction("Action", null).show();
                         return;
-                    }else if(input.getText().toString().length()!=10){
+                    }else if(input.getText().toString().length()<10){
                         Snackbar.make(MainActivity.this.getCurrentFocus(), "Please enter a valid phone number", Snackbar.LENGTH_LONG)
                                 .setAction("Action", null).show();
                     }else{
-                        //Send phone number
+                        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+                        StringRequest sr = new StringRequest(Request.Method.POST,GoogleSignInActivity.SERVER_URL+"/setPhoneNumber", new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                Log.v("MainActivity",response);
+                            }
+                        }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Log.e("Volley Error!",error.toString());
+                            }
+                        }){
+
+                            @Override
+                            protected Map<String,String> getParams(){
+                                Map<String,String> params = new HashMap<String, String>();
+                                params.put("uid", FirebaseAuth.getInstance().getCurrentUser().getUid().toString());
+                                params.put("phone", input.getText().toString());
+                                return params;
+                            }
+                        };
+                        queue.add(sr);
                     }
                 }
             });

@@ -6,11 +6,28 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.github.lzyzsd.circleprogress.DonutProgress;
+import com.google.firebase.auth.FirebaseAuth;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -34,6 +51,7 @@ public class ProfileFragment extends Fragment {
     RecyclerView recyclerView;
     RecyclerView.LayoutManager layoutManager;
     ProfileAdapter profileAdapter;
+    DonutProgress donutProgress;
 
     ArrayList<ProfileMessage> data;
 
@@ -77,6 +95,7 @@ public class ProfileFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_profile, container, false);
         recyclerView = (RecyclerView) rootView.findViewById(R.id.profileRecyclerView);
         layoutManager = new LinearLayoutManager(getContext());
+        donutProgress = (DonutProgress) rootView.findViewById(R.id.donut_progress);
         data = new ArrayList<ProfileMessage>();
         recyclerView.setLayoutManager(layoutManager);
         profileAdapter = new ProfileAdapter(getContext(), data);
@@ -109,8 +128,40 @@ public class ProfileFragment extends Fragment {
     }
 
     void loadData(){
-        data.add(new ProfileMessage("Varun","Yay!",""));
-        data.add(new ProfileMessage("ashwini","lol!",""));
-        data.add(new ProfileMessage("avan","This is really awesome!",""));
+        RequestQueue queue = Volley.newRequestQueue(getContext());
+        StringRequest sr = new StringRequest(Request.Method.POST, GoogleSignInActivity.SERVER_URL + "/getProfile", new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                //Toast.makeText(getContext(),"Posted!",Toast.LENGTH_LONG).show();
+                try{
+                    data.clear();
+                    JSONObject jsonObject = new JSONObject(response);
+                    Long factor = jsonObject.getLong("impact_factor");
+                    donutProgress.setProgress(factor);
+                    JSONArray jsonArray = jsonObject.getJSONArray("messages");
+                    for(int i=0;i<jsonArray.length();i++){
+                        JSONObject jsonObject1 = jsonArray.getJSONObject(i);
+                        data.add(new ProfileMessage(jsonObject1.getString("name"),jsonObject1.getString("content"),jsonObject1.getString("image_url")));
+                    }
+                    profileAdapter.notifyDataSetChanged();
+                }catch (Exception ex){
+                    Log.v("ProfileFragment",ex.toString());
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("Volley Error!", error.toString());
+            }
+        }) {
+
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("uid", FirebaseAuth.getInstance().getCurrentUser().getUid());
+                return params;
+            }
+        };
+        queue.add(sr);
     }
 }
